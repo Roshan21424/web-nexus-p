@@ -1,0 +1,66 @@
+###################################
+# React (nexus-ui)
+###################################
+
+# dependencies
+nexus-ui/node_modules/
+nexus-ui/.pnp
+nexus-ui/.pnp.js
+
+# production build
+nexus-ui/build/
+nexus-ui/dist/
+
+# environment files
+nexus-ui/.env*
+!nexus-ui/.env.example
+
+# log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# cache
+nexus-ui/.cache/
+nexus-ui/.vite/
+
+###################################
+# Spring Boot (nexus-api)
+###################################
+
+# Maven
+nexus-api/target/
+nexus-api/.mvn/
+nexus-api/mvnw
+nexus-api/mvnw.cmd
+
+# Gradle (if used)
+nexus-api/.gradle/
+nexus-api/build/
+
+# IDE files
+*.iml
+nexus-api/.idea/
+nexus-api/.classpath
+nexus-api/.project
+nexus-api/.settings/
+
+# logs
+nexus-api/logs/
+nexus-api/tmp/
+
+###################################
+# OS / Editor
+###################################
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# swap files
+*.swp
