@@ -1,4 +1,4 @@
-package com.personal.nexus.Entities;
+package com.personal.nexus.entity;
 
 
 import jakarta.persistence.*;

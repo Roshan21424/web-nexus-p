@@ -1,7 +1,7 @@
-package com.personal.nexus.Entities.repository;
+package com.personal.nexus.entity.repository;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.personal.nexus.Entities.Section;
+import com.personal.nexus.entity.Section;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

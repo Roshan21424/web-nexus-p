@@ -1,6 +1,6 @@
-package com.personal.nexus.Entities.workstation;
+package com.personal.nexus.entity.workstation;
 
-import com.personal.nexus.Entities.Section;
+import com.personal.nexus.entity.Section;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,4 +1,4 @@
-package com.personal.nexus.Entities.feed;
+package com.personal.nexus.entity.feed;
 
 
 import lombok.AllArgsConstructor;

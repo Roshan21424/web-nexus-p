@@ -1,8 +1,8 @@
-package com.personal.nexus.Entities.workstation;
+package com.personal.nexus.entity.workstation;
 
 
-import com.personal.nexus.Entities.Student;
-import com.personal.nexus.Entities.Teacher;
+import com.personal.nexus.entity.Student;
+import com.personal.nexus.entity.Teacher;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
