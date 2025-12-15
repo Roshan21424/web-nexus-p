@@ -14,14 +14,22 @@ public class AuthService {
     @Autowired
     private UserService userService;
 
-
     public User getCurrentUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-        if (principal instanceof UserDetails) {
-            String username = ((UserDetails) principal).getUsername();
-            return userService.findByName(username);
+        if (principal instanceof UserDetails userDetails) {
+
+            String username = userDetails.getUsername();
+
+            return userService.findByName(username)
+                    .orElseThrow(() -> new UsernameNotFoundException(
+                            "User not found: " + username
+                    ));
         }
+
         throw new UsernameNotFoundException("User not authenticated");
     }
+
 }
