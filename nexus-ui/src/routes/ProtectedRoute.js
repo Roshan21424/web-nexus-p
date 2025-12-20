@@ -1,31 +1,57 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import { useMyContext } from "../context/ContextProvider";
 
-const ProtectedRoute = () => {
-  const token = localStorage.getItem("JWT_TOKEN"); // Use sessionStorage instead of localStorage for better security
+export function ProtectedRoute({ children, requireAdmin = false }) {
+  const { jwtToken, loading, user } = useMyContext();
 
-  if (!token) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-blue-50">
+        <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!jwtToken) {
     return <Navigate to="/login" replace />;
   }
 
-  try {
-    const decoded = jwtDecode(token);
-    const currentTime = Date.now() / 1000;
+  if (requireAdmin) {
+    const storedUser = JSON.parse(localStorage.getItem("USER") || "{}");
 
-    if (decoded.exp < currentTime) {
-      // Token expired
-      localStorage.removeItem("JWT_TOKEN");
-      localStorage.removeItem("USER");
-      return <Navigate to="/login" replace />;
+    const hasAdminRole =
+      storedUser.roles?.includes("ROLE_ADMIN") ||
+      storedUser.roles?.includes("ADMIN");
+
+    if (!hasAdminRole) {
+      return <Navigate to="/" replace />;
     }
-
-    return <Outlet />;
-  } catch (error) {
-    console.error("Token validation error:", error);
-    localStorage.removeItem("JWT_TOKEN");
-    localStorage.removeItem("USER");
-    return <Navigate to="/login" replace />;
   }
-};
 
-export default ProtectedRoute;
+  return children ? children : <Outlet />;
+}
+
+export function PublicRoute({ children }) {
+  const { jwtToken, loading } = useMyContext();
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-blue-50">
+        <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (jwtToken) {
+    const storedUser = JSON.parse(localStorage.getItem("USER") || "{}");
+    const hasAdminRole =
+      storedUser.roles?.includes("ROLE_ADMIN") ||
+      storedUser.roles?.includes("ADMIN");
+
+    if (hasAdminRole) {
+      return <Navigate to="/admin" replace />;
+    }
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}

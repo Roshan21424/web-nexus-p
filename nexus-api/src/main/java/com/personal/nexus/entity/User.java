@@ -25,7 +25,9 @@ public class User {
     private Role role;
     public enum Role {
         STUDENT,
-        TEACHER
+        TEACHER,
+        ADMIN
+
     }
 
 

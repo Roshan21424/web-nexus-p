@@ -1,14 +1,12 @@
 package com.personal.nexus.repository;
 
-
-import com.personal.nexus.entity.User;
+import com.personal.nexus.entity.Admin;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-    User findByEmail(String email);
-    Optional<User> findByName(String name);
+public interface AdminRepository extends JpaRepository<Admin, Long> {
+    Optional<Admin> findByEmail(String email);
 
 }

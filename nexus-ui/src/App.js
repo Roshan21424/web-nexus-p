@@ -1,33 +1,76 @@
-import { lazy, Suspense } from 'react';
-import './App.css';
-import { Navigate, Route, Routes } from 'react-router-dom';
-import LoadingSpinner from './components/utils/LoadingSpinner';
-import Home from './components/Home';
-import ProtectedRoute from './routes/ProtectedRoute';
+import {
+  Route,
+  BrowserRouter as Router,
+  Routes,
+  Outlet,
+} from "react-router-dom";
+import { ProtectedRoute, PublicRoute } from "./routes/ProtectedRoute";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+import Admin from "./components/Admin";
+import Home from "./components/Home";
 
-
-
-
-const Login = lazy(() => import('./components/Login'));
-const Signup = lazy(() => import('./components/Signup'));
-
-function App() {
+export default function App() {
   return (
- <div className="App min-h-screen flex flex-col bg-gray-50">
-       <Suspense fallback={<LoadingSpinner />}>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+    <Router>
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <PublicRoute>
+              <Signup />
+            </PublicRoute>
+          }
+        />
 
-          <Route path="/" element={<ProtectedRoute />}>
-            <Route index element={<Navigate to="/home" replace />} />
-            <Route path="/home" element={<Home />} />
-          </Route>
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute requireAdmin={true}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        />
 
-        </Routes>
-       </Suspense>
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute requireAdmin={false}>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Home />} />
+        </Route>
+      </Routes>
+    </Router>
+  );
+}
+
+function AdminLayout() {
+  return (
+    <div className="min-h-screen w-screen bg-gray-50">
+      <Admin />
     </div>
   );
 }
 
-export default App;
+function MainLayout() {
+  return (
+    <div className="flex h-screen w-screen bg-blue-50 text-white overflow-hidden">
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <main className="flex-1 overflow-y-auto px-6 py-8">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}

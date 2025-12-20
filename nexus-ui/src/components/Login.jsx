@@ -1,141 +1,219 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { jwtDecode } from "jwt-decode";
+import { Link, useNavigate } from "react-router-dom";
+import InputField from "../components/utils/InputField";
 import { useMyContext } from "../context/ContextProvider";
 import api from "../service/api";
-import { Link, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: ""
-  });
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(1);
+  const [JWTToken, setJWTToken] = useState("");
   const [error, setError] = useState("");
-  const { jwtToken, setJwtToken } = useMyContext();
+  const { setJwtToken } = useMyContext();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (error) setError("");
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: { username: "", password: "", code: "" },
+    mode: "onTouched",
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
+  const loginHandler = async (data) => {
     try {
-      const response = await api.post("/auth/login", formData);
+      setLoading(true);
+      setError("");
+
+      const response = await api.post("/auth/login", data);
 
       if (response.status === 200 && response.data.jwtToken) {
+        setJWTToken(response.data.jwtToken);
         const decodedToken = jwtDecode(response.data.jwtToken);
-        
-        const user = {
-          username: decodedToken.sub,
-          roles: decodedToken.roles ? decodedToken.roles.split(",") : [],
-        };
+        const rolesFromResponse = response.data.roles || [];
 
-        localStorage.setItem("USER", JSON.stringify(user));
-        localStorage.setItem("JWT_TOKEN", response.data.jwtToken);
-        setJwtToken(response.data.jwtToken);
-        console.log(response.data.jwtToken);
-        navigate("/home");
+        if (decodedToken.is2factorAuthEnabled) {
+          setStep(2);
+        } else {
+          handleSuccessfulLogin(
+            response.data.jwtToken,
+            decodedToken,
+            rolesFromResponse
+          );
+        }
       }
-    } catch (err) {
-      const errorMessage = err.response?.data?.message 
-        || err.response?.data 
-        || "Invalid credentials. Please try again.";
-      setError(errorMessage);
+    } catch (error) {
+      setError("Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (jwtToken) {
-      navigate("/home");
+  const onVerify2FactorAuthHandler = async (data) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const formData = new URLSearchParams();
+      formData.append("code", data.code);
+      formData.append("jwtToken", JWTToken);
+
+      await api.post("/auth/verify-2factorAuth-login", formData, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      });
+
+      const userResponse = await api.get("/auth/user");
+      const rolesFromResponse = userResponse.data.roles || [];
+
+      const decodedToken = jwtDecode(JWTToken);
+      handleSuccessfulLogin(JWTToken, decodedToken, rolesFromResponse);
+    } catch (error) {
+      setError("Invalid 2FA code. Please try again.");
+    } finally {
+      setLoading(false);
     }
-  }, [jwtToken, navigate]);
+  };
 
-  return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 p-4">
-      <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
-            <p className="text-gray-600">Please enter your credentials to login</p>
-          </div>
+  const handleSuccessfulLogin = (jwtToken, decodedToken, rolesFromResponse) => {
+    const user = {
+      username: decodedToken.sub,
+      roles: rolesFromResponse,
+    };
 
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-              Username
-            </label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              placeholder="Enter your username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-              disabled={loading}
-            />
-          </div>
+    localStorage.setItem("USER", JSON.stringify(user));
+    localStorage.setItem("JWT_TOKEN", jwtToken);
+    setJwtToken(jwtToken);
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-              disabled={loading}
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-100 border border-red-200 text-red-800 p-3 rounded-lg text-sm">
-              {error}
+    if (
+      rolesFromResponse.includes("ROLE_ADMIN") ||
+      rolesFromResponse.includes("ADMIN")
+    ) {
+      window.location.href = "/admin";
+    } else {
+      window.location.href = "/";
+    }
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-purple-50 to-blue-50 p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+              <span className="text-white text-2xl font-bold">N</span>
             </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <span className="flex items-center justify-center">
-                <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Logging in...
-              </span>
-            ) : (
-              "Login"
-            )}
-          </button>
-
-          <div className="space-y-2 text-center text-sm">
-            <p className="text-gray-600">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-indigo-600 hover:text-indigo-700 font-semibold transition">
-                Sign Up
-              </Link>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+              {step === 1 ? "Welcome Back" : "Verify 2FA"}
+            </h1>
+            <p className="text-slate-500">
+              {step === 1
+                ? "Please enter your credentials"
+                : "Enter your 2FA code"}
             </p>
           </div>
-        </form>
-      </div>
-    </div>
-  );
-};
 
-export default Login
+          <div className="bg-white rounded-3xl shadow-lg p-8 backdrop-blur-sm border border-slate-100">
+            {step === 1 ? (
+              <form onSubmit={handleSubmit(loginHandler)} className="space-y-4">
+                <InputField
+                  required
+                  label="Username"
+                  id="username"
+                  type="text"
+                  message="*Username is required"
+                  placeholder="Enter your username"
+                  register={register}
+                  errors={errors}
+                />
+                <InputField
+                  required
+                  label="Password"
+                  id="password"
+                  type="password"
+                  message="*Password is required"
+                  placeholder="Enter your password"
+                  register={register}
+                  errors={errors}
+                />
+
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-3 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Logging in..." : "Log In"}
+                </button>
+
+                <div className="text-center space-y-2 text-sm">
+                  <Link
+                    to="/forgot-password"
+                    className="text-purple-600 hover:text-purple-700 block"
+                  >
+                    Forgot Password?
+                  </Link>
+                  <p className="text-slate-500">
+                    Don't have an account?{" "}
+                    <Link
+                      to="/signup"
+                      className="text-purple-600 hover:text-purple-700 font-semibold"
+                    >
+                      Sign Up
+                    </Link>
+                  </p>
+                </div>
+              </form>
+            ) : (
+              <form
+                onSubmit={handleSubmit(onVerify2FactorAuthHandler)}
+                className="space-y-4"
+              >
+                <InputField
+                  label="2FA Code"
+                  required
+                  id="code"
+                  type="text"
+                  message="*Code is required"
+                  placeholder="Enter your 2FA code"
+                  register={register}
+                  errors={errors}
+                />
+
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-3 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Verifying..." : "Verify 2FA"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep(1);
+                    setError("");
+                  }}
+                  className="w-full text-slate-600 hover:text-slate-800 text-sm font-medium"
+                >
+                  ← Back to login
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+};
+export default Login;
