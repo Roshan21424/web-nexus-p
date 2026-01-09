@@ -12,6 +12,7 @@ import Home from "./components/Home";
 import SideNav from "./components/SideNav";
 import TopNav from "./components/TopNav";
 import ClassRoom from "./components/ClassRoom";
+import Repository from "./components/Repository";
 
 export default function App() {
   return (
@@ -52,6 +53,7 @@ export default function App() {
           }
         >
           <Route index element={<ClassRoom />} />
+          <Route path="repository" element={<Repository />} />
         </Route>
       </Routes>
     </Router>
@@ -69,22 +71,18 @@ function AdminLayout() {
 function MainLayout() {
   return (
     <div className="flex h-screen w-screen bg-blue-50 text-white overflow-hidden">
-
       <div className="hidden md:flex md:flex-col w-[260px] shrink-0">
         <SideNav />
       </div>
 
       <div className="flex flex-col flex-1 overflow-hidden">
-
         <header className="flex-none p-6">
           <TopNav />
         </header>
 
         <main className="flex-1 overflow-y-auto px-6 py-8">
-          
           <Outlet />
         </main>
-
       </div>
     </div>
   );
