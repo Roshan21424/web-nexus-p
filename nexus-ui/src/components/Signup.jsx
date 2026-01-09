@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export default function Signup() {
-  const [formData, setFormData] = useState({ name: "", password: "" });
+  const [formData, setFormData] = useState({ name: "", password: "" ,role:"STUDENT"});
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 

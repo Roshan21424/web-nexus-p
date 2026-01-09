@@ -20,6 +20,7 @@ import java.io.IOException;
 public class AuthTokenFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
+
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -27,10 +28,17 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private UserDetailsServiceImpl userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-        String path = request.getServletPath();
-        if (path.equals("/login") || path.startsWith("/public/")) {
+        // Use getRequestURI() instead of getServletPath() to get the full path
+        String path = request.getRequestURI();
+
+        // Skip JWT validation for public auth endpoints
+        if (path.startsWith("/auth/login") ||
+                path.startsWith("/auth/signup") ||
+                path.startsWith("/auth/csrf") ||
+                path.startsWith("/public/")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -50,11 +58,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {
-                logger.warn("JWT is either null or invalid: {}", jwt);
+                logger.debug("JWT is either null or invalid for path: {}", path);
             }
         } catch (Exception e) {
-            logger.error("Exception in AuthTokenFilter: {}", e.getMessage(), e);
+            logger.error("Cannot set user authentication for path {}: {}", path, e.getMessage());
         }
+
         filterChain.doFilter(request, response);
     }
 }
