@@ -13,6 +13,7 @@ import SideNav from "./components/SideNav";
 import TopNav from "./components/TopNav";
 import ClassRoom from "./components/ClassRoom";
 import Repository from "./components/Repository";
+import WorkStation from "./components/WorkStation";
 
 export default function App() {
   return (
@@ -54,6 +55,8 @@ export default function App() {
         >
           <Route index element={<ClassRoom />} />
           <Route path="repository" element={<Repository />} />
+          <Route path="workstation" element={<WorkStation />} />
+
         </Route>
       </Routes>
     </Router>
