@@ -22,4 +22,5 @@ public class UserInfoResponse {
     private LocalDateTime accountExpiryDate;
     private boolean twoFactorEnabled;
     private List<String> roles;
+    private Long sessionId;
 }

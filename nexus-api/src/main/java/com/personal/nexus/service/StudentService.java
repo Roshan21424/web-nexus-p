@@ -64,4 +64,8 @@ public class StudentService {
     public void deleteStudent(Long id) {
         studentRepository.deleteById(id);
     }
+
+    public Section getSectionOfStudentByStudentId(Long studentId){
+        return  sectionRepository.findByStudentId(studentId);
+    }
 }

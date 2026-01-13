@@ -23,7 +23,7 @@ export default function Repository() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const { setCurrentRoute } = useMyContext();
+  const { setCurrentRoute ,sectionId} = useMyContext();
 
   useEffect(() => {
     setCurrentRoute("Database");
@@ -39,44 +39,12 @@ export default function Repository() {
 
   const getFileIcon = (type) => fileIcons[type] || Paperclip;
 
-  useEffect(() => {
-
-
-    const mockFiles = [
-      {
-        id: 1,
-        name: "Class Notes",
-        type: "pdf",
-        size: "2.4 MB",
-        category: "Notes",
-        subject: "Math",
-        uploadedBy: "Mr. Smith",
-        uploadDate: new Date(),
-        downloads: 45,
-        url: "#",
-      },
-      {
-        id: 2,
-        name: "Assignment",
-        type: "zip",
-        size: "5.1 MB",
-        category: "Assignment",
-        subject: "Physics",
-        uploadedBy: "Dr. John",
-        uploadDate: new Date(),
-        downloads: 23,
-        url: "#",
-      },
-    ];
-
-    setFiles(mockFiles);
-    setLoading(false);
-  }, []);
 
     useEffect(() => {
     const load = async () => {
       try {
-        const res = await api.get("/class-repository/get-class-repository?sectionId=1");
+        const res = await api.get(`/class-repository/get-class-repository?sectionId=${sectionId}`);
+        setFiles(res.data);
         console.log(res.data)
       } catch (err) {
         console.error(err);

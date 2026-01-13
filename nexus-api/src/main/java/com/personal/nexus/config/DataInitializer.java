@@ -3,16 +3,27 @@ package com.personal.nexus.config;
 import com.personal.nexus.entity.Admin;
 import com.personal.nexus.entity.User;
 import com.personal.nexus.repository.AdminRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 
 @Component
 public class DataInitializer implements ApplicationRunner {
-    
+
+    @Autowired
+    MongoTemplate mongoTemplate;
+
+    @PostConstruct
+    public void checkMongo() {
+        System.out.println("Mongo DB name = " + mongoTemplate.getDb().getName());
+        System.out.println("Mongo collections = " + mongoTemplate.getCollectionNames());
+    }
+
     @Autowired
     private AdminRepository adminRepository;
     @Autowired

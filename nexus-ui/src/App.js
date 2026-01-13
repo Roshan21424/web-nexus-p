@@ -8,12 +8,12 @@ import { ProtectedRoute, PublicRoute } from "./routes/ProtectedRoute";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Admin from "./components/Admin";
-import Home from "./components/Home";
 import SideNav from "./components/SideNav";
 import TopNav from "./components/TopNav";
 import ClassRoom from "./components/ClassRoom";
 import Repository from "./components/Repository";
 import WorkStation from "./components/WorkStation";
+import PostFeed from "./components/Feed";
 
 export default function App() {
   return (
@@ -56,7 +56,7 @@ export default function App() {
           <Route index element={<ClassRoom />} />
           <Route path="repository" element={<Repository />} />
           <Route path="workstation" element={<WorkStation />} />
-
+          <Route path="feed" element={<PostFeed />} />
         </Route>
       </Routes>
     </Router>

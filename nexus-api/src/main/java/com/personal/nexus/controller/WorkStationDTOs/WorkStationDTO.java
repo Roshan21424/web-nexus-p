@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class WorkStationDTO {
+public class  WorkStationDTO {
 
     private Long id;
     private String sectionName;

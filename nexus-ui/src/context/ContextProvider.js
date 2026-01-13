@@ -9,6 +9,7 @@ export default function ContextProvider({ children }) {
   const [currentRoute, setCurrentRoute] = useState("ClassRoom");
   const [user, setUser] = useState(null);
   const [sessionId, setSessionId] = useState(null);
+  const [sectionId,setSectionId] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export default function ContextProvider({ children }) {
       user,
       sessionId,
       currentRoute,
+      sectionId,
       loading,
       setJwtToken,
       setUser,

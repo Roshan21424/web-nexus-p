@@ -3,6 +3,7 @@ import { Spinner } from "./ui/Spinner";
 import { Avatar } from "./ui/Avatar";
 import { Card } from "./ui/Card";
 import { useMyContext } from "../context/ContextProvider";
+import api from "../service/api";
 
 const getStatusBadge = (status) => {
   const map = {
@@ -63,34 +64,27 @@ export default function WorkStation() {
     setCurrentRoute("WorkStation");
   }, []);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setData({
-        today_remainder: [
-          {
-            to: "Class 10-A",
-            assigner: [
-              { by: "Mr. Patel", value: ["Submit assignment by 5 PM"] },
-            ],
-          },
-        ],
-        today_task: [
-          {
-            to: "Class 10-A",
-            assigner: [
-              {
-                by: "Ms. Gupta",
-                context: [
-                  { value: "Complete chapter 5 reading", status: "PENDING" },
-                ],
-              },
-            ],
-          },
-        ],
-      });
+ useEffect(() => {
+  const fetchWorkstation = async () => {
+    setLoading(true);
+    try {
+      const workStationId = 1; // replace in future
+      const res = await api.get(`/get-workstation/${workStationId}`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch workstation data');
+      }
+
+      const workstationData = await res.json();
+      setData(workstationData);
+    } catch (error) {
+      console.error('Error fetching workstation:', error);
+    } finally {
       setLoading(false);
-    }, 500);
-  }, []);
+    }
+  };
+
+  fetchWorkstation();
+}, []);
 
   if (loading) return <Spinner text="Loading workstation..." />;
 
