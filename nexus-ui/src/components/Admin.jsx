@@ -12,8 +12,6 @@ import {
 } from "lucide-react";
 import api from "../service/api";
 
-const API_BASE = process.env.REACT_APP_SERVER_URL;
-
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("sections");
   const [sections, setSections] = useState([]);
@@ -43,12 +41,13 @@ export default function Admin() {
   const fetchAllData = async () => {
     setLoading(true);
     try {
+      // fetchAllData
       const [sectionsRes, teachersRes, studentsRes, subjectsRes] =
         await Promise.all([
-          api.get(`${API_BASE}/admin/sections`).catch(() => null),
-          api.get(`${API_BASE}/admin/teachers`).catch(() => null),
-          api.get(`${API_BASE}/admin/students`).catch(() => null),
-          api.get(`${API_BASE}/admin/subjects`).catch(() => null),
+          api.get(`/admin/sections`).catch(() => null),
+          api.get(`/admin/teachers`).catch(() => null),
+          api.get(`/admin/students`).catch(() => null),
+          api.get(`/admin/subjects`).catch(() => null),
         ]);
 
       if (sectionsRes?.data) setSections(sectionsRes.data);
@@ -109,7 +108,7 @@ export default function Admin() {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
 
     try {
-      await api.delete(`${API_BASE}/admin/${type}/${id}`);
+      await api.delete(`/admin/${type}/${id}`);
       alert("Deleted successfully!");
       fetchAllData();
     } catch (err) {
@@ -120,7 +119,7 @@ export default function Admin() {
   const handleAssignTeacherToSubject = async (subjectId, teacherId) => {
     try {
       await api.put(
-        `${API_BASE}/admin/${subjectId}/assign-teacher/${teacherId}`
+        `/admin/${subjectId}/assign-teacher/${teacherId}`,
       );
       alert("Teacher assigned successfully!");
       fetchAllData();
@@ -132,7 +131,7 @@ export default function Admin() {
   const handleAssignSectionToSubject = async (subjectId, sectionId) => {
     try {
       await api.put(
-        `${API_BASE}/admin/${subjectId}/assign-section/${sectionId}`
+        `/admin/${subjectId}/assign-section/${sectionId}`,
       );
       alert("Section assigned successfully!");
       fetchAllData();
@@ -144,7 +143,7 @@ export default function Admin() {
   const handleAssignClassTeacher = async (teacherId, sectionId) => {
     try {
       await api.put(
-        `${API_BASE}/admin/${teacherId}/assign-class-teacher/${sectionId}`
+        `/admin/${teacherId}/assign-class-teacher/${sectionId}`,
       );
       alert("Class teacher assigned successfully!");
       fetchAllData();
@@ -156,7 +155,7 @@ export default function Admin() {
   const handleAssignStudentToSection = async (studentId, sectionId) => {
     try {
       await api.put(
-        `${API_BASE}/admin/${studentId}/assign-student/${sectionId}`
+        `/admin/${studentId}/assign-student/${sectionId}`,
       );
       alert("Student assigned successfully!");
       fetchAllData();
@@ -370,7 +369,7 @@ export default function Admin() {
                         onClick={() =>
                           handleDelete(
                             "sections",
-                            section.id || section.sectionId
+                            section.id || section.sectionId,
                           )
                         }
                         className="text-red-500 hover:text-red-700"
@@ -429,7 +428,7 @@ export default function Admin() {
                         onClick={() =>
                           handleDelete(
                             "teachers",
-                            teacher.id || teacher.teacherId
+                            teacher.id || teacher.teacherId,
                           )
                         }
                         className="text-red-500 hover:text-red-700"
@@ -480,7 +479,7 @@ export default function Admin() {
                         onClick={() =>
                           handleDelete(
                             "students",
-                            student.id || student.studentId
+                            student.id || student.studentId,
                           )
                         }
                         className="text-red-500 hover:text-red-700"
@@ -532,7 +531,7 @@ export default function Admin() {
                         onClick={() =>
                           handleDelete(
                             "subjects",
-                            subject.id || subject.subjectId
+                            subject.id || subject.subjectId,
                           )
                         }
                         className="text-red-500 hover:text-red-700"

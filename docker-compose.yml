@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: nexuse
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: 123456
+      MYSQL_ROOT_PASSWORD: 123456
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  mongodb:
+    image: mongo:6.0
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build: ./nexus-api
+    ports:
+      - "8080:8080"
+    restart: always
+    environment:
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQLDialect
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/nexuse
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_MONGODB_URI: mongodb://mongodb:27017/nexus
+    depends_on:
+      - mysql
+      - mongodb
+
+  frontend:
+    build: ./nexus-ui
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  mongo_data:

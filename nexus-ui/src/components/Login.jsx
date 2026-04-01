@@ -41,7 +41,7 @@ const Login = () => {
           handleSuccessfulLogin(
             response.data.jwtToken,
             decodedToken,
-            rolesFromResponse
+            rolesFromResponse,
           );
         }
       }
@@ -91,9 +91,9 @@ const Login = () => {
       rolesFromResponse.includes("ROLE_ADMIN") ||
       rolesFromResponse.includes("ADMIN")
     ) {
-      window.location.href = "/admin";
+      navigate("/admin");
     } else {
-      window.location.href = "/";
+      navigate("/");
     }
   };
 
