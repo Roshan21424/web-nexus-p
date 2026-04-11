@@ -43,7 +43,7 @@ export default function Repository() {
     useEffect(() => {
     const load = async () => {
       try {
-        const res = await api.get(`/class-repository/get-class-repository?sectionId=${sectionId}`);
+        const res = await api.get(`/class-repository/get-class-repository?sectionId=1`);
         setFiles(res.data);
         console.log(res.data)
       } catch (err) {

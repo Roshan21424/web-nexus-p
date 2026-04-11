@@ -44,10 +44,10 @@ export default function Admin() {
       // fetchAllData
       const [sectionsRes, teachersRes, studentsRes, subjectsRes] =
         await Promise.all([
-          api.get(`/admin/sections`).catch(() => null),
-          api.get(`/admin/teachers`).catch(() => null),
-          api.get(`/admin/students`).catch(() => null),
-          api.get(`/admin/subjects`).catch(() => null),
+          api.get(`/api/admin/sections`).catch(() => null),
+          api.get(`/api/admin/teachers`).catch(() => null),
+          api.get(`/api/admin/students`).catch(() => null),
+          api.get(`/api/admin/subjects`).catch(() => null),
         ]);
 
       if (sectionsRes?.data) setSections(sectionsRes.data);
@@ -69,11 +69,11 @@ export default function Admin() {
 
       switch (type) {
         case "section":
-          endpoint = "/admin/add-section";
+          endpoint = "/api/admin/add-section";
           body = { sectionEnum: formData.sectionName };
           break;
         case "teacher":
-          endpoint = "/admin/add-teacher";
+          endpoint = "/api/admin/add-teacher";
           body = {
             name: formData.name,
             email: formData.email,
@@ -81,7 +81,7 @@ export default function Admin() {
           };
           break;
         case "student":
-          endpoint = "/admin/add-student";
+          endpoint = "/api/admin/add-student";
           body = {
             name: formData.name,
             email: formData.email,
@@ -89,12 +89,12 @@ export default function Admin() {
           };
           break;
         case "subject":
-          endpoint = "/admin/add-subject";
+          endpoint = "/api/admin/add-subject";
           body = { name: formData.name };
           break;
       }
 
-      await api.post(`${API_BASE}${endpoint}`, body);
+      await api.post(`${endpoint}`, body);
       setShowModal(false);
       setFormData({});
       fetchAllData();
@@ -108,7 +108,7 @@ export default function Admin() {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
 
     try {
-      await api.delete(`/admin/${type}/${id}`);
+      await api.delete(`/api/admin/${type}/${id}`);
       alert("Deleted successfully!");
       fetchAllData();
     } catch (err) {
@@ -119,7 +119,7 @@ export default function Admin() {
   const handleAssignTeacherToSubject = async (subjectId, teacherId) => {
     try {
       await api.put(
-        `/admin/${subjectId}/assign-teacher/${teacherId}`,
+        `/api/admin/${subjectId}/assign-teacher/${teacherId}`,
       );
       alert("Teacher assigned successfully!");
       fetchAllData();
@@ -131,7 +131,7 @@ export default function Admin() {
   const handleAssignSectionToSubject = async (subjectId, sectionId) => {
     try {
       await api.put(
-        `/admin/${subjectId}/assign-section/${sectionId}`,
+        `/api/admin/${subjectId}/assign-section/${sectionId}`,
       );
       alert("Section assigned successfully!");
       fetchAllData();
@@ -143,7 +143,7 @@ export default function Admin() {
   const handleAssignClassTeacher = async (teacherId, sectionId) => {
     try {
       await api.put(
-        `/admin/${teacherId}/assign-class-teacher/${sectionId}`,
+        `/api/admin/${teacherId}/assign-class-teacher/${sectionId}`,
       );
       alert("Class teacher assigned successfully!");
       fetchAllData();
@@ -155,7 +155,7 @@ export default function Admin() {
   const handleAssignStudentToSection = async (studentId, sectionId) => {
     try {
       await api.put(
-        `/admin/${studentId}/assign-student/${sectionId}`,
+        `/api/admin/${studentId}/assign-student/${sectionId}`,
       );
       alert("Student assigned successfully!");
       fetchAllData();

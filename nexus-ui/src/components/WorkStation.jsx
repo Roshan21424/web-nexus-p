@@ -64,29 +64,27 @@ export default function WorkStation() {
     setCurrentRoute("WorkStation");
   }, []);
 
- useEffect(() => {
-  const fetchWorkstation = async () => {
-    setLoading(true);
-    try {
-      const workStationId = 1; // replace in future
-      const res = await api.get(`/get-workstation/${workStationId}`);
-      if (!res.ok) {
-        throw new Error('Failed to fetch workstation data');
+  useEffect(() => {
+    const fetchWorkstation = async () => {
+      setLoading(true);
+      try {
+        const workStationId = 1;
+        const res = await api.get(
+          `/workstations/get-workstation/${workStationId}`,
+        );
+        setData(res.data); // axios puts data in res.data, no res.json() needed
+      } catch (error) {
+        console.error("Error fetching workstation:", error);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const workstationData = await res.json();
-      setData(workstationData);
-    } catch (error) {
-      console.error('Error fetching workstation:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchWorkstation();
-}, []);
+    fetchWorkstation();
+  }, []);
 
   if (loading) return <Spinner text="Loading workstation..." />;
+  if (!data) return <div>Failed to load workstation.</div>; // ADD THIS
 
   const reminders = extract(data.today_remainder, "rem");
   const tasks = extract(data.today_task, "task");

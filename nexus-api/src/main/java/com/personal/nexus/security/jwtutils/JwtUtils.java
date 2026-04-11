@@ -11,8 +11,6 @@ import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 
-
-
 @Component
 public class JwtUtils {
 
@@ -22,33 +20,38 @@ public class JwtUtils {
     @Value("${spring.app.jwtExpirationsMS}")
     private int jwtExpirationMs;
 
-    private Key key(){
+    private Key key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    public String getJwtFromHeader(HttpServletRequest request){
+    public String getJwtFromHeader(HttpServletRequest request) {
 
         String token = request.getHeader("Authorization");
-        if(token != null && token.startsWith("Bearer ")){
+        if (token != null && token.startsWith("Bearer ")) {
             return token.substring(7);
         }
 
         return null;
     }
 
-    public String generateTokenFromUsername(UserDetails userDetails){
-
+    public String generateTokenFromUsername(UserDetails userDetails) {
         String username = userDetails.getUsername();
+        String role = userDetails.getAuthorities()
+                .stream()
+                .findFirst()
+                .map(authority -> authority.getAuthority())
+                .orElse("");
 
         return Jwts.builder()
                 .subject(username)
+                .claim("role", role) // ADD THIS LINE
                 .issuedAt(new Date())
-                .expiration(new Date((new Date()).getTime()+jwtExpirationMs))
+                .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(key())
                 .compact();
     }
 
-    public String getUserNameFromJwtToken(String token){
+    public String getUserNameFromJwtToken(String token) {
 
         return Jwts.parser()
                 .verifyWith((SecretKey) key())
@@ -58,18 +61,16 @@ public class JwtUtils {
                 .getSubject();
     }
 
-    public boolean validateJwtToken(String authToken){
-        try{
+    public boolean validateJwtToken(String authToken) {
+        try {
             Jwts.parser().verifyWith((SecretKey) key())
                     .build()
                     .parseSignedClaims(authToken);
             return true;
         } catch (Exception e) {
-            System.out.println("Error in JWT"+ e.getMessage());
+            System.out.println("Error in JWT" + e.getMessage());
         }
         return false;
     }
 
 }
-
-

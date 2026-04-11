@@ -139,10 +139,10 @@ export default function ClassRoom() {
                     key={s.studentId}
                     className="flex items-center gap-3 bg-gradient-to-r from-purple-100 to-blue-100 border-purple-200"
                   >
-                    <Avatar name={s.name} size="sm" />
+                    <Avatar name={s.Name} size="sm" />
 
                     <div className="flex-1">
-                      <p className="font-semibold">{s.name}</p>
+                      <p className="font-semibold">{s.Name}</p>
                       <p className="text-xs text-slate-600">#{s.studentId}</p>
                     </div>
 
@@ -162,11 +162,11 @@ export default function ClassRoom() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {regularStudents.map((s) => (
               <Card key={s.studentId} className="flex items-center gap-3">
-                <Avatar name={s.name} size="sm" />
+                <Avatar name={s.Name} size="sm" />
 
                 <div>
                   <p className="text-xs text-slate-500">Roll No: {s.studentId}</p>
-                  <p className="font-semibold">{s.name}</p>
+                  <p className="font-semibold">{s.Name}</p>
                 </div>
               </Card>
             ))}

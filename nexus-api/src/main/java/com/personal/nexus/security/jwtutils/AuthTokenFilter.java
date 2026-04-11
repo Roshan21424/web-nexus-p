@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +34,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
         // Use getRequestURI() instead of getServletPath() to get the full path
         String path = request.getRequestURI();
+        String method = request.getMethod();
+
 
         // Skip JWT validation for public auth endpoints
         if (path.startsWith("/auth/login") ||
@@ -57,11 +60,13 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 );
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                MDC.put("username", username);
+                logger.info("Authenticated user={} method={} path={}", username, method, path);
             } else {
-                logger.debug("JWT is either null or invalid for path: {}", path);
+                logger.warn("Missing or invalid JWT method={} path={}", method, path);
             }
         } catch (Exception e) {
-            logger.error("Cannot set user authentication for path {}: {}", path, e.getMessage());
+            logger.error("JWT processing failed method={} path={} error={}", method, path, e.getMessage());
         }
 
         filterChain.doFilter(request, response);

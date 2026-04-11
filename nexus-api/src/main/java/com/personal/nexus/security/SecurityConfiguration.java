@@ -20,7 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true,securedEnabled = true,jsr250Enabled = true)
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfiguration {
 
     @Autowired
@@ -33,11 +33,13 @@ public class SecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource;
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -51,23 +53,22 @@ public class SecurityConfiguration {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource));
-        http.csrf(csrf->csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/auth/**"));
+        http.csrf(csrf -> csrf
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .ignoringRequestMatchers("/auth/**", "/api/admin/**", "/api/**")); // fix this
 
         http.authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/auth/**")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated());
+                .requestMatchers("/api/admin/**").hasRole("ADMIN") // fix this
+                .requestMatchers("/auth/**").permitAll()
+                .anyRequest().authenticated());
 
         http.authenticationProvider(daoAuthenticationProvider());
-        http.exceptionHandling(exception->exception
-                        .authenticationEntryPoint(authEntryPoint));
+
+        http.exceptionHandling(exception -> exception
+                .authenticationEntryPoint(authEntryPoint));
 
         http.addFilterBefore(authTokenFilter,
-                         UsernamePasswordAuthenticationFilter.class);
+                UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
 
